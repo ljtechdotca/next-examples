@@ -1,0 +1,29 @@
+html,
+body {
+  padding: 1.5rem;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+pre {
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  background-color: #000;
+  font-family: Consolas;
+  code {
+    word-break: break-all;
+    white-space: pre-line;
+    color: #fff;
+  }
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  box-sizing: border-box;
+}
