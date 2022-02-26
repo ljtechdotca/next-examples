@@ -1,0 +1,8 @@
+{
+  "name": "next-examples",
+  "version": "1.0.0",
+  "description": "A collection of Next.js examples.",
+  "main": "index.js",
+  "author": "ljtech",
+  "license": "MIT"
+}
