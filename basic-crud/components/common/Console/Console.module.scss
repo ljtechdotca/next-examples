@@ -1,0 +1,13 @@
+.root {
+  pre {
+    display: grid;
+    padding: 1.5rem;
+    background-color: black;
+    border-radius: 0.25rem;
+
+    code {
+      font-family: Consolas;
+      color: white;
+    }
+  }
+}

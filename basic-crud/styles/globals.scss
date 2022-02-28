@@ -1,0 +1,28 @@
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+form {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 0.25rem;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+input {
+  padding: 0.5rem;
+  border: 1px solid #eee;
+  border-radius: 0.125rem;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
