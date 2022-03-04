@@ -1,25 +1,27 @@
 {
-  "name": "basic-crud",
+  "name": "custom-express-server",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "nodemon ./server.ts",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "component": "node ./cli/component.mjs"
+    "start": "nodemon ./server.ts",
+    "lint": "next lint"
   },
   "dependencies": {
+    "express": "^4.17.3",
     "next": "12.1.0",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
   "devDependencies": {
+    "@types/express": "^4.17.13",
     "@types/node": "17.0.21",
     "@types/react": "17.0.39",
     "eslint": "8.10.0",
     "eslint-config-next": "12.1.0",
-    "typescript": "4.5.5",
-    "sass": "^1.49.9"
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.6.0",
+    "typescript": "4.6.2"
   }
 }

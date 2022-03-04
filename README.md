@@ -1,5 +1,5 @@
 # Next.js Examples
 
-👋 Hello world.
+This is a collection of open source Next.js applications I've created.
 
-Lorem ipsum.
+Feel free to learn from them or PR any issues you have with my code.
