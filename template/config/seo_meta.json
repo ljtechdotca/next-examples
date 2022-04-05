@@ -1,0 +1,25 @@
+{
+  "title": "ljtech Template",
+  "titleTemplate": "%s - ljtech Template",
+  "description": "Default Next.js Template",
+  "openGraph": {
+    "title": "ljtech Template",
+    "description": "Default Next.js Template",
+    "type": "website",
+    "url": "https://ljtech.ca",
+    "site_name": "Template",
+    "images": [
+      {
+        "url": "/card.png",
+        "width": "800",
+        "height": "600",
+        "alt": "card"
+      }
+    ]
+  },
+  "twitter": {
+    "handle": "@ljtechdotca",
+    "site": "@ljtechdotca",
+    "cardType": "summary_large_image"
+  }
+}
