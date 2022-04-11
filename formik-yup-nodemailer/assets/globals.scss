@@ -1,0 +1,47 @@
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  padding: 0.25rem;
+  font-weight: 600;
+}
+
+label {
+  font-size: 14px;
+}
+
+form {
+  width: 100%;
+  display: grid;
+  gap: 0.5rem;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 5rem;
+  max-height: 10rem;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 0.25rem;
+  border-radius: 2px;
+  border: 1px solid #dddddd;
+  background-color: transparent;
+  outline: unset;
+  &:focus,
+  &:hover {
+    border-color: #333333;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}

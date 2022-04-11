@@ -1,0 +1,14 @@
+.root {
+  display: grid;
+  padding: 1.5rem;
+  max-width: 320px;
+  width: 100%;
+  min-height: 100vh;
+  margin: auto;
+  place-items: center center;
+}
+
+.error {
+  color: #ff0000;
+  font-size: 12px;
+}
