@@ -1,81 +1,92 @@
-import { barGraph } from "@data/bar-graph";
 import * as d3 from "d3";
 import { FC, useEffect, useRef } from "react";
 
-interface Item {
-  value: number;
-  name: string;
+interface BarGraphProps {
+  data: { name: string; value: number }[];
+  background: string;
+  dimensions: {
+    width: number;
+    height: number;
+    margin: [number, number, number, number];
+  };
 }
 
-// interface BarGraphProps {
-//   data: Item[];
-//   background: string;
-//   foreground: string;
-//   width?: number;
-//   height?: number;
-// }
-
-export const BarGraph: FC = ({}) => {
+export const BarGraph: FC<BarGraphProps> = ({
+  data,
+  background,
+  dimensions,
+}) => {
   const svgRef = useRef<SVGSVGElement>(null);
-  // const scale = useScale(mathMax, height);
 
   useEffect(() => {
-    if (svgRef.current) {
-      const mathMax = Math.max(...barGraph.data.map((d) => d.value));
-      const background = "dodgerblue";
-      const foreground = "black";
-      const width = 300;
-      const height = 300;
-      const margin = {
-        top: 16,
-        right: 16,
-        bottom: 16,
-        left: 16,
-      };
-      // const scale = height / Math.log(mathMax);
-      const svg = d3.select(svgRef.current);
+    // define, cleanup, and initialize svg attributes
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove();
+    svg.attr("width", dimensions.width).attr("height", dimensions.height);
 
-      const y = d3.scaleLinear().range([height, 0]).domain([0, mathMax]);
+    // mock yAxis and find maximum width to add to left margin
+    const mathMax = Math.max(...data.map((d) => d.value));
+    const yScale = d3.scaleLinear().range([100, 0]).domain([0, mathMax]);
+    const yAxis = svg
+      .append("g")
+      .call(d3.axisLeft(yScale))
+      .attr("class", "axis__y");
+    let mw = 0;
+    yAxis.selectAll(".tick>text").each(function (d) {
+      const w = (this as SVGTextElement).getBBox().width;
+      if (w > mw) mw = w;
+    });
+    yAxis.remove();
 
-      // define x and y axis
+    // define plot dimensions
+    const margin = {
+      top: dimensions.margin[0],
+      right: dimensions.margin[1],
+      bottom: dimensions.margin[2],
+      left: mw + dimensions.margin[3],
+    };
+    const width = dimensions.width - margin.left - margin.right;
+    const height = dimensions.height - margin.top - margin.bottom;
+    // set x and y axis ranges using new plot dimensions
+    yScale.range([height, 0]);
+    const xScale = d3
+      .scaleBand()
+      .padding(0.1)
+      .range([0, width])
+      .domain(data.map((d) => d.name));
 
-      svg.append("g").call(d3.axisLeft(y)).attr("class", "axis__y");
+    // define the base
+    const g = svg
+      .append("g")
+      .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-      // init svg
-      svg.attr("width", width).attr("height", height);
+    // append axis x
+    g.append("g")
+      .call(d3.axisBottom(xScale))
+      .attr("class", "axis__x")
+      .attr("transform", `translate(0, ${height})`);
 
-      // define datum
-      const datum = svg
-        .append("g")
-        .selectAll("rect")
-        .data(barGraph.data)
-        .enter()
-        .append("rect")
-        .attr("class", "datum");
+    // append axis y
+    g.append("g").call(d3.axisLeft(yScale)).attr("class", "axis__y");
 
-      const x = d3
-        .scaleBand()
-        .padding(0.1)
-        .range([0, width])
-        .domain(barGraph.data.map((d) => d.name));
-      svg
-        .append("g")
-        .call(d3.axisBottom(x))
-        .attr("class", "axis__x")
-        .attr("transform", `translate(0, ${height})`);
-
-      // init datum
-      datum
-        .attr("height", (d, i) => {
-          console.log(d.value);
-          return Math.log(d.value) * scale;
-        })
-        .attr("width", x.bandwidth())
-        .attr("x", (d, i) => Number(x(d.name)))
-        .attr("y", (d, i) => height - Math.log(d.value) * scale)
-        .attr("fill", background);
-    }
-  }, []);
+    // append rect.bar
+    g.selectAll(".bar")
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", (d) => xScale(d.name) ?? 0)
+      .attr("y", (d) => yScale(d.value))
+      .attr("width", xScale.bandwidth())
+      .attr("height", (d) => height - yScale(d.value))
+      .attr("fill", background);
+  }, [
+    background,
+    data,
+    dimensions.height,
+    dimensions.margin,
+    dimensions.width,
+  ]);
 
   return <svg ref={svgRef} />;
 };

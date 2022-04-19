@@ -10,3 +10,9 @@ a {
   margin: 0;
   box-sizing: border-box;
 }
+
+.bar {
+  &:hover {
+    opacity: 0.5;
+  }
+}

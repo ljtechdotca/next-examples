@@ -10,18 +10,17 @@ const Home: NextPage = () => {
     <div className={styles.container}>
       <h2>Bar Graph</h2>
       <BarGraph
-        background={barGraph.colors.background}
-        foreground={barGraph.colors.foreground}
+        background={barGraph.background}
         data={barGraph.data}
+        dimensions={{ width: 300, height: 300, margin: [16, 16, 32, 16] }}
       />
-      {/* <br />
+      <br />
       <h2>Stacked Bar Graph</h2>
       <StackedBarGraph
-        height={320}
-        background={stackedBarGraph.colors.background}
-        foreground={stackedBarGraph.colors.foreground}
+        background={stackedBarGraph.background}
         data={stackedBarGraph.data}
-      /> */}
+        dimensions={{ width: 300, height: 300, margin: [16, 16, 32, 16] }}
+      />
     </div>
   );
 };
