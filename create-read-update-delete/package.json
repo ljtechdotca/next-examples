@@ -1,5 +1,5 @@
 {
-  "name": "basic-crud",
+  "name": "create-read-update-delete",
   "version": "0.1.0",
   "private": true,
   "scripts": {

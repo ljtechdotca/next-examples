@@ -2,7 +2,7 @@
 
 A collection of Next.js projects.
 
- - Basic CRUD
+ - Create Read Update Delete
  - Custom Express Server
  - Formik Yup Nodemailer
  - Middleware Basic Auth
