@@ -1,75 +1,85 @@
+import { createAxis, createY } from "@lib/helpers";
+import { Dimensions, Headers } from "@types";
 import * as d3 from "d3";
+import { ScaleOrdinal } from "d3";
 import { FC, useEffect, useRef } from "react";
 
 interface BarGraphProps {
+  color: ScaleOrdinal<string, string, never>;
   data: { name: string; value: number }[];
-  background: string;
-  dimensions: {
-    width: number;
-    height: number;
-    margin: [number, number, number, number];
-  };
+  dimensions: Dimensions;
+  headers: Headers;
 }
 
 export const BarGraph: FC<BarGraphProps> = ({
+  color,
   data,
-  background,
   dimensions,
+  headers,
 }) => {
-  const svgRef = useRef<SVGSVGElement>(null);
+  const graphRef = useRef<SVGSVGElement>(null);
+  const legendRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    // define, cleanup, and initialize svg attributes
-    const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove();
-    svg.attr("width", dimensions.width).attr("height", dimensions.height);
+    // build legend
+    const legend = d3.select(legendRef.current);
+    legend.selectAll("*").remove();
+    legend.attr("width", dimensions.width).attr("height", data.length * 32);
+    legend
+      .selectAll()
+      .data(data.map((d) => d.name))
+      .enter()
+      .append("rect")
+      .attr("height", 32)
+      .attr("width", 32)
+      .attr("y", (d, i) => 32 * i)
+      .attr("class", "legend__color")
+      .attr("fill", (d) => color(d));
+    legend
+      .selectAll()
+      .data(data.map((d) => d.name))
+      .enter()
+      .append("text")
+      .attr("x", 40)
+      .attr("y", (d, i) => 32 * i + 23)
+      .attr("class", "legend__label")
+      .text((d) => d);
 
-    // mock yAxis and find maximum width to add to left margin
-    const mathMax = Math.max(...data.map((d) => d.value));
-    const yScale = d3.scaleLinear().range([100, 0]).domain([0, mathMax]);
-    const yAxis = svg
-      .append("g")
-      .call(d3.axisLeft(yScale))
-      .attr("class", "axis__y");
-    let mw = 0;
-    yAxis.selectAll(".tick>text").each(function (d) {
-      const w = (this as SVGTextElement).getBBox().width;
-      if (w > mw) mw = w;
-    });
-    yAxis.remove();
+    // build graph
+    const graph = d3.select(graphRef.current);
+    graph.selectAll("*").remove();
+    graph.attr("width", dimensions.width).attr("height", dimensions.height);
+    const max = Math.max(...data.map((d) => d.value));
+    const { margin, maxWidth, height, width, yScale } = createY(
+      dimensions,
+      max,
+      graph
+    );
 
-    // define plot dimensions
-    const margin = {
-      top: dimensions.margin[0],
-      right: dimensions.margin[1],
-      bottom: dimensions.margin[2],
-      left: mw + dimensions.margin[3],
-    };
-    const width = dimensions.width - margin.left - margin.right;
-    const height = dimensions.height - margin.top - margin.bottom;
-    // set x and y axis ranges using new plot dimensions
-    yScale.range([height, 0]);
     const xScale = d3
       .scaleBand()
       .padding(0.1)
       .range([0, width])
       .domain(data.map((d) => d.name));
+    yScale.range([height, 0]);
 
-    // define the base
-    const g = svg
+    const { xAxis, yAxis, grid } = createAxis({
+      headers,
+      margin,
+      maxWidth,
+      width,
+      height,
+      xScale,
+      yScale,
+    });
+
+    const g = graph
       .append("g")
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
+    g.append("g").call(xAxis);
+    g.append("g").call(yAxis);
+    g.append("g").call(grid);
 
-    // append axis x
-    g.append("g")
-      .call(d3.axisBottom(xScale))
-      .attr("class", "axis__x")
-      .attr("transform", `translate(0, ${height})`);
-
-    // append axis y
-    g.append("g").call(d3.axisLeft(yScale)).attr("class", "axis__y");
-
-    // append rect.bar
     g.selectAll(".bar")
       .data(data)
       .enter()
@@ -79,14 +89,13 @@ export const BarGraph: FC<BarGraphProps> = ({
       .attr("y", (d) => yScale(d.value))
       .attr("width", xScale.bandwidth())
       .attr("height", (d) => height - yScale(d.value))
-      .attr("fill", background);
-  }, [
-    background,
-    data,
-    dimensions.height,
-    dimensions.margin,
-    dimensions.width,
-  ]);
+      .attr("fill", (d) => color(d.name));
+  }, [color, data, dimensions, headers]);
 
-  return <svg ref={svgRef} />;
+  return (
+    <>
+      <svg ref={legendRef} />
+      <svg ref={graphRef} />
+    </>
+  );
 };

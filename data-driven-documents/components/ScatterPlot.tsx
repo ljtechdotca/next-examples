@@ -1,35 +1,43 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { createAxis, createY } from "@lib/helpers";
 import { Dimensions, Headers } from "@types";
 import * as d3 from "d3";
-import { ScaleOrdinal, select } from "d3";
+import { scaleLinear, ScaleOrdinal, select } from "d3";
 import { FC, useEffect, useRef } from "react";
 
-interface StackedBarGraphProps {
+interface ScatterPlotProps {
   color: ScaleOrdinal<string, string, never>;
-  data: Record<string, any>[];
+  data: {
+    category: string;
+    x: number;
+    y: number;
+  }[];
   dimensions: Dimensions;
   headers: Headers;
-  keys: string[]
+  shape: ScaleOrdinal<string, string | null, never>;
 }
 
-export const StackedBarGraph: FC<StackedBarGraphProps> = ({
+export const ScatterPlot: FC<ScatterPlotProps> = ({
   color,
   data,
   dimensions,
   headers,
-  keys
+  shape,
 }) => {
   const graphRef = useRef<SVGSVGElement>(null);
-  const legendRef= useRef<SVGSVGElement>(null);
+  const legendRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     // build legend
+
+    const categories = new Map(data.map((d) => [d.category, 1]));
+
     const legend = select(legendRef.current);
     legend.selectAll("*").remove();
-    legend.attr("width", dimensions.width).attr("height", keys.length * 32);
+    legend.attr("width", dimensions.width).attr("height", categories.size * 32);
     legend
       .selectAll()
-      .data(keys)
+      .data(categories.keys())
       .enter()
       .append("rect")
       .attr("height", 32)
@@ -39,7 +47,7 @@ export const StackedBarGraph: FC<StackedBarGraphProps> = ({
       .attr("fill", (d) => color(d));
     legend
       .selectAll()
-      .data(keys)
+      .data(categories.keys())
       .enter()
       .append("text")
       .attr("x", 40)
@@ -47,41 +55,38 @@ export const StackedBarGraph: FC<StackedBarGraphProps> = ({
       .attr("class", "legend__label")
       .text((d) => d);
 
-    // build graph
-    const graph = d3.select(graphRef.current);
+    //build graph
+    const graph = select(graphRef.current);
     graph.selectAll("*").remove();
     graph
-      .attr("width", dimensions.width)
       .attr("height", dimensions.height)
+      .attr("width", dimensions.width)
       .attr("viewbox", [0, 0, dimensions.width, dimensions.height]);
 
-    const stack = d3.stack().keys(keys).order(d3.stackOrderReverse)(
-      data
-    );
-
-    const values = Object.values(stack[0]);
-    const valuesMapD1 = values.map((d) => (d[1] ? d[1] : 0));
-    const max = Math.max(...valuesMapD1);
+    const [minX, maxX] = [
+      Math.min(...data.map((d) => d.x)),
+      Math.max(...data.map((d) => d.x)),
+    ];
+    const [minY, maxY] = [
+      Math.min(...data.map((d) => d.y)),
+      Math.max(...data.map((d) => d.y)),
+    ];
 
     const { margin, maxWidth, height, width, yScale } = createY(
       dimensions,
-      max,
+      maxY,
       graph
     );
 
-    const xScale = d3
-      .scaleBand()
-      .padding(0.1)
-      .range([0, width])
-      .domain(data.map((d) => d.name));
-    yScale.range([height, 0]);
+    const xScale = scaleLinear().domain([minX, maxX]).range([0, width]);
+    yScale.domain([minY, maxY]).range([height, 0]);
 
     const { xAxis, yAxis, grid } = createAxis({
       headers,
+      height,
       margin,
       maxWidth,
       width,
-      height,
       xScale,
       yScale,
     });
@@ -93,23 +98,17 @@ export const StackedBarGraph: FC<StackedBarGraphProps> = ({
     g.append("g").call(yAxis);
     g.append("g").call(grid);
 
-    const group = g
-      .selectAll()
-      .data(stack)
-      .enter()
-      .append("g")
-      .attr("fill", (d) => String(color(d.key)));
-    group
-      .selectAll(".bar")
-      .data((d) => d)
-      .enter()
-      .append("rect")
-      .attr("class", "bar")
-      .attr("x", (d) => xScale(String(d.data.name)) ?? 0)
-      .attr("y", (d) => yScale(d[1]))
-      .attr("width", (d) => xScale.bandwidth())
-      .attr("height", (d) => height - yScale(d[1]));
-  }, [color, data, dimensions, headers]);
+    g.append("g")
+      .attr("stroke-width", 1.5)
+      .attr("font-family", "sans-serif")
+      .attr("font-size", 10)
+      .selectAll("path")
+      .data(data)
+      .join("path")
+      .attr("transform", (d) => `translate(${xScale(d.x)}, ${yScale(d.y)})`)
+      .attr("fill", (d) => color(d.category))
+      .attr("d", (d) => String(shape(d.category)));
+  }, []);
 
   return (
     <>

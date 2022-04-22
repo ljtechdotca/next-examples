@@ -1,9 +1,1 @@
-d3 methods: 
-  1. scale band: scales the gap between each object inside a chart
-  `https://observablehq.com/@d3/d3-scaleband`
-
-  2. draw axis:
-    scaleLinear: constructs a new continuos scale with the specified range
-    axisBottom | axisLeft: which side to anchor
-    domain: data values associated with the axis
-    range: controls where the axis is placed on the view
+☐ abstract grid on scatter-plot
